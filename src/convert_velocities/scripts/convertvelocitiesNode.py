@@ -10,8 +10,10 @@ from geometry_msgs.msg import Twist
 import matplotlib.pyplot as plt
 import numpy as np
 
-left_wheel = 0
-right_wheel = 0
+left_front_wheel = 0
+right_front_wheel = 0
+left_back_wheel = 0
+right_back_wheel = 0
 
 def velocity_callback(msg):
     tw = 0.2 #trackwidth of the rover
@@ -19,26 +21,38 @@ def velocity_callback(msg):
     psi_dot = msg.angular.z
 
     #Motors' velocities:
-    global left_wheel, right_wheel
-    r = 0.03 #radius of wheels
-    left_wheel = x_dot - psi_dot*tw/2
-    left_wheel = left_wheel/r
-    right_wheel = x_dot + psi_dot*tw/2
-    right_wheel = right_wheel/r
+    global left_front_wheel, right_front_wheel,left_back_wheel, right_back_wheel
+    r = 0.035 #radius of wheels
+    left_front_wheel = x_dot - psi_dot*tw/2
+    left_front_wheel = left_front_wheel/r
+    right_front_wheel = x_dot + psi_dot*tw/2
+    right_front_wheel = right_front_wheel/r
+    left_back_wheel = x_dot - psi_dot*tw/2
+    left_back_wheel = left_back_wheel/r
+    right_back_wheel = x_dot + psi_dot*tw/2
+    right_back_wheel = right_back_wheel/r
+    
     
 
 def main():
-    global left_wheel, right_wheel
+    global left_front_wheel, right_front_wheel,left_back_wheel, right_back_wheel
     rospy.init_node('VelocitiesConverter')
     rospy.Subscriber("/cmd_vel", Twist, velocity_callback)
-    RW_cmd_topic = "/rover/joint_right_wheel_velocity_controller/command"
-    LW_cmd_topic = "/rover/joint_left_wheel_velocity_controller/command"
-    RW_pub = rospy.Publisher(RW_cmd_topic, Float64, queue_size = 1)
-    LW_pub = rospy.Publisher(LW_cmd_topic, Float64, queue_size = 1)
+    RW_front_cmd_topic = "/rover/right_front_wheel_velocity_controller/command"
+    LW_front_cmd_topic = "/rover/left__front_wheel_velocity_controller/command"
+    RW_back_cmd_topic = "/rover/right_back_wheel_velocity_controller/command"
+    LW_back_cmd_topic = "/rover/left__back_wheel_velocity_controller/command"
+    RW_front_pub = rospy.Publisher(RW_front_cmd_topic, Float64, queue_size = 1)
+    LW_front_pub = rospy.Publisher(LW_front_cmd_topic, Float64, queue_size = 1)
+    RW_back_pub = rospy.Publisher(RW_back_cmd_topic, Float64, queue_size = 1)
+    LW_back_pub = rospy.Publisher(LW_back_cmd_topic, Float64, queue_size = 1)
     rate = rospy.Rate(100)
     while not rospy.is_shutdown():
-	RW_pub.publish(right_wheel)
-        LW_pub.publish(left_wheel)
+	RW_front_pub.publish(right_front_wheel)
+        LW_front_pub.publish(left_front_wheel)
+        RW_back_pub.publish(right_back_wheel)
+        LW_back_pub.publish(left_back_wheel)
+
 	print("Converting keyboard commands to motor commands")
         rate.sleep()
 
